@@ -1,0 +1,89 @@
+{
+  "name": "scrcpy",
+  "version": "1.0.0",
+  "description": "Android 设备投屏工具",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --debug",
+    "build": "electron-builder",
+    "build:win": "electron-builder --win",
+    "build:mac": "electron-builder --mac",
+    "build:linux": "electron-builder --linux"
+  },
+  "keywords": [
+    "scrcpy",
+    "android",
+    "screen-mirroring",
+    "electron"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "fs-extra": "^11.1.1"
+  },
+  "devDependencies": {
+    "asar": "^3.2.0",
+    "electron": "^35.1.4",
+    "electron-builder": "^26.0.12"
+  },
+  "build": {
+    "appId": "com.electron.scrcpy",
+    "productName": "Android投屏助手",
+    "files": [
+      "**/*",
+      "!dist{,/**/*}",
+      "!dist-fixed{,/**/*}",
+      "!scrcpy-electron/resources{,/**/*}"
+    ],
+    "directories": {
+      "buildResources": "scrcpy-electron/resources",
+      "output": "release"
+    },
+    "win": {
+      "target": "nsis",
+      "extraResources": [
+        {
+          "from": "scrcpy-electron/resources/scrcpy/win64",
+          "to": "scrcpy/win64",
+          "filter": ["**/*"]
+        },
+        {
+          "from": "scrcpy-electron/resources/scrcpy/win32",
+          "to": "scrcpy/win32",
+          "filter": ["**/*"]
+        }
+      ]
+    },
+    "mac": {
+      "target": "dmg",
+      "category": "public.app-category.developer-tools",
+      "extraResources": [
+        {
+          "from": "scrcpy-electron/resources/scrcpy/mac-x64",
+          "to": "scrcpy/mac-x64",
+          "filter": ["**/*"]
+        },
+        {
+          "from": "scrcpy-electron/resources/scrcpy/mac-arm64",
+          "to": "scrcpy/mac-arm64",
+          "filter": ["**/*"]
+        }
+      ]
+    },
+    "linux": {
+      "target": [
+        "AppImage",
+        "deb"
+      ],
+      "category": "Development",
+      "extraResources": [
+        {
+          "from": "scrcpy-electron/resources/scrcpy/linux",
+          "to": "scrcpy/linux",
+          "filter": ["**/*"]
+        }
+      ]
+    }
+  }
+}

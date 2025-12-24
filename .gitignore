@@ -1,0 +1,61 @@
+node_modules/
+
+# IDE and editor
+.DS_Store
+.idea/
+.vscode/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Build and dependencies
+/dist/
+/build/
+/out/
+*.log
+
+# System files
+Thumbs.db
+*.orig
+
+# Environment variables
+.env
+.env.local
+.env.development
+.env.test
+.env.production
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Local development
+.local
+.history
+
+# Temp files
+*.tmp
+*.bak
+
+
+# Build outputs
+/release/
+/dist/
+/dist-fixed/
+/win-unpacked/
+/mac/
+/linux/
+/out/
+/build/
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Misc
+.DS_Store
+Thumbs.db

@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Android投屏助手</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/remixicon@3.5.0/fonts/remixicon.css">
+</head>
+<body>
+  <!-- 动态背景 -->
+  <div class="bg-waves">
+    <div class="wave"></div>
+    <div class="wave"></div>
+    <div class="wave"></div>
+  </div>
+
+  <div class="window-drag-top"></div>
+
+  <div class="app-container">
+    <!-- 标题栏 -->
+    <div class="title-bar" id="titleBar">
+      <div class="title-bar-left">
+        <div class="title-bar-icon">
+          <i class="ri-android-line"></i>
+        </div>
+        <div class="title-bar-title">
+          <h1>Android投屏助手</h1>
+        </div>
+      </div>
+
+      <div class="title-bar-right">
+        <div class="control-buttons titlebar-interactive">
+          <button id="refreshDevicesBtn" class="btn btn-secondary btn-icon tooltip" data-tooltip="刷新设备">
+            <i class="ri-refresh-line"></i>
+          </button>
+        </div>
+
+        <div class="window-controls titlebar-interactive" aria-label="窗口控制">
+          <button id="windowMinimizeBtn" class="window-control-btn" aria-label="最小化">
+            <i class="ri-subtract-line"></i>
+          </button>
+          <button id="windowMaximizeBtn" class="window-control-btn" aria-label="最大化/还原">
+            <i class="ri-checkbox-blank-line"></i>
+          </button>
+          <button id="windowCloseBtn" class="window-control-btn window-close" aria-label="关闭">
+            <i class="ri-close-line"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-shell">
+      <nav class="app-nav" aria-label="主导航">
+        <button class="nav-item" type="button" data-view="devices" aria-current="page">
+          <i class="ri-usb-line" aria-hidden="true"></i>
+          <span>设备</span>
+        </button>
+        <button class="nav-item" type="button" data-view="mirroring">
+          <i class="ri-cast-line" aria-hidden="true"></i>
+          <span>投屏</span>
+        </button>
+        <button class="nav-item" type="button" data-view="help">
+          <i class="ri-question-line" aria-hidden="true"></i>
+          <span>帮助</span>
+        </button>
+      </nav>
+
+      <main class="app-main">
+        <div class="workspace-header">
+          <div class="workspace-title">
+            <h2 id="currentDeviceTitle">未连接设备</h2>
+          </div>
+          <div class="workspace-actions">
+            <button id="stopMirroringBtn" class="btn btn-error" disabled>
+              <i class="ri-stop-circle-line"></i> 停止投屏
+            </button>
+          </div>
+        </div>
+
+        <section id="viewDevices" class="view" data-active-view="devices">
+          <div id="noDeviceMsg" class="alert alert-warning">
+            <div class="alert-icon"><i class="ri-error-warning-line"></i></div>
+            <div class="alert-content">
+              <p>未检测到连接的设备。请通过 USB 连接您的 Android 设备，或使用 WiFi 方式连接。</p>
+              <p>如果您是首次使用，请确保：</p>
+              <ul style="margin-left: 20px; margin-top: 10px;">
+                <li>设备已开启 USB 调试模式</li>
+                <li>已授权当前计算机进行调试</li>
+                <li>对于无线连接，设备需与电脑处于同一局域网</li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="grid-2">
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">USB 设备</h2>
+                <div class="card-actions">
+                  <button id="refreshUsbBtn" class="btn btn-secondary btn-icon" aria-label="刷新USB设备">
+                    <i class="ri-refresh-line"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-content">
+                <div id="usbDeviceList" class="device-list-root">
+                  <div class="loading">
+                    <div class="loading-spinner"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="card">
+              <div class="card-header">
+                <h2 class="card-title">WiFi 连接</h2>
+                <div class="card-actions">
+                  <button id="refreshWirelessBtn" class="btn btn-secondary btn-icon" aria-label="刷新WiFi设备">
+                    <i class="ri-refresh-line"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="card-content">
+                <div class="form-group">
+                  <label for="deviceIp" class="form-label">设备 IP 地址</label>
+                  <div class="form-row">
+                    <input type="text" id="deviceIp" class="form-control" placeholder="例如: 192.168.1.100">
+                    <button id="connectWifiBtn" class="btn btn-primary">连接</button>
+                  </div>
+                </div>
+                <div id="wirelessDeviceList" class="device-list-root">
+                  <div class="loading">
+                    <div class="loading-spinner"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="alert alert-info">
+            <div class="alert-icon"><i class="ri-information-line"></i></div>
+            <div class="alert-content">
+              <strong>提示：</strong> 本应用仅支持 Android 设备，不支持 iOS 设备。
+            </div>
+          </div>
+        </section>
+
+        <section id="viewMirroring" class="view" data-active-view="mirroring" hidden>
+          <div id="mirroringOptions" class="card" hidden>
+            <div class="card-header">
+              <h3 class="card-title">投屏选项</h3>
+            </div>
+            <div class="card-content">
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">最大分辨率</label>
+                  <select id="maxResolution" class="form-control">
+                    <option value="1920">1920×1080 (Full HD)</option>
+                    <option value="1280" selected>1280×720 (HD)</option>
+                    <option value="960">960×540</option>
+                    <option value="640">640×360</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">比特率</label>
+                  <select id="bitRate" class="form-control">
+                    <option value="8M">8 Mbps (高质量)</option>
+                    <option value="4M" selected>4 Mbps (推荐)</option>
+                    <option value="2M">2 Mbps (流畅)</option>
+                    <option value="1M">1 Mbps (低带宽)</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label class="form-label">帧率上限</label>
+                  <select id="maxFps" class="form-control">
+                    <option value="60">60 FPS</option>
+                    <option value="30" selected>30 FPS</option>
+                    <option value="24">24 FPS</option>
+                    <option value="15">15 FPS</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">屏幕方向</label>
+                  <select id="rotation" class="form-control">
+                    <option value="0" selected>自动</option>
+                    <option value="1">竖屏</option>
+                    <option value="2">横屏</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-checkbox">
+                  <input type="checkbox" id="stayAwake" checked>
+                  <span>保持设备屏幕常亮</span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label class="form-checkbox">
+                  <input type="checkbox" id="showTouches" checked>
+                  <span>显示触摸点</span>
+                </label>
+              </div>
+              <div class="form-group">
+                <label class="form-label">设备解锁</label>
+                <div class="form-row">
+                  <input type="password" id="unlockPassword" class="form-control" placeholder="输入解锁密码">
+                  <button id="unlockDeviceBtn" class="btn btn-accent">
+                    <i class="ri-lock-unlock-line"></i> 解锁设备
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="card-footer">
+              <button id="startMirroringBtn" class="btn btn-primary">
+                <i class="ri-cast-line"></i> 开始投屏
+              </button>
+            </div>
+          </div>
+
+          <div id="deviceInfo" class="card" hidden>
+            <div class="card-header">
+              <h3 class="card-title">设备信息</h3>
+            </div>
+            <div class="card-content" id="deviceInfoContent"></div>
+          </div>
+
+          <div class="empty-state" id="mirroringEmpty">
+            <div class="empty-icon"><i class="ri-device-line" aria-hidden="true"></i></div>
+            <div class="empty-title">先选择一个设备</div>
+            <div class="empty-desc">在“设备”页选择已连接的设备后，再配置投屏选项。</div>
+            <button class="btn btn-secondary" type="button" data-jump-view="devices">
+              去选择设备
+            </button>
+          </div>
+        </section>
+
+        <section id="viewHelp" class="view" data-active-view="help" hidden>
+          <div id="connectionHelp" class="card">
+            <div class="card-header">
+              <h3 class="card-title">连接帮助</h3>
+            </div>
+            <div class="card-content">
+              <h4>USB 连接</h4>
+              <ol>
+                <li>使用 USB 数据线连接设备到电脑</li>
+                <li>在设备上启用「开发者选项」和「USB 调试」</li>
+                <li>在弹出的授权对话框中允许 USB 调试</li>
+                <li>点击刷新按钮检测设备</li>
+              </ol>
+              
+              <h4>WiFi 连接 (无线)</h4>
+              <ol>
+                <li>首先通过 USB 连接设备</li>
+                <li>点击设备旁边的「启用 WiFi」按钮</li>
+                <li>等待设备 IP 获取完成，然后可以断开 USB 线</li>
+                <li>点击「连接」建立无线连接</li>
+              </ol>
+              
+              <p><strong>注意：</strong> 无线连接要求设备和电脑在同一局域网内。</p>
+            </div>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <!-- 状态栏 -->
+    <div id="statusBar" class="status-bar">
+      <div id="statusMessage" class="status-message"></div>
+    </div>
+  </div>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- 脚本 -->
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
